@@ -75,11 +75,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Sheila ❤️ Jack — a love letter, in code" },
       { name: "description", content: "Jack built an entire website because texting Sheila normally felt too basic. Click at your own emotional risk." },
       { name: "author", content: "Jack" },
-      { property: "og:title", content: "Sheila ❤️ Jack" },
-      { property: "og:description", content: "A cinematic love experience built for one girl." },
+      { property: "og:title", content: "Sheila ❤️ Jack — a love letter, in code" },
+      { property: "og:description", content: "Jack built an entire website because texting Sheila normally felt too basic. Click at your own emotional risk." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Sheila ❤️ Jack — a love letter, in code" },
+      { name: "twitter:description", content: "Jack built an entire website because texting Sheila normally felt too basic. Click at your own emotional risk." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2e6906c-71ff-446e-adf7-3c8cf9f4ce2c/id-preview-52730369--6f51581a-4ade-4c32-8b0b-15a068709773.lovable.app-1779775930076.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2e6906c-71ff-446e-adf7-3c8cf9f4ce2c/id-preview-52730369--6f51581a-4ade-4c32-8b0b-15a068709773.lovable.app-1779775930076.png" },
     ],
     links: [
       {
