@@ -15,10 +15,13 @@ const MICRO = [
 
 export function Countdown({ plan }: { plan: DatePlan }) {
   const target = buildTarget(plan);
-  const [now, setNow] = useState(() => Date.now());
+  const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(() => Date.UTC(2000, 0, 1));
   const [microIdx, setMicroIdx] = useState(0);
 
   useEffect(() => {
+    setMounted(true);
+    setNow(Date.now());
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
