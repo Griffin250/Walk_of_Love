@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useState } from "react";
 
 type Item = { kind: "memory" | "plan" | "joke"; text: string };
 
@@ -43,10 +43,12 @@ export function CompassOfUs() {
   const [angle, setAngle] = useState(0);
   const [item, setItem] = useState<Item | null>(null);
   const [spinning, setSpinning] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const spin = () => {
+  const spin = useCallback(() => {
     if (spinning) return;
     setSpinning(true);
+    setShowModal(false);
     const extra = 720 + Math.floor(Math.random() * 720);
     const next = angle + extra;
     setAngle(next);
@@ -54,8 +56,14 @@ export function CompassOfUs() {
     window.setTimeout(() => {
       setItem(picked);
       setSpinning(false);
+      setShowModal(true);
     }, 1400);
-  };
+  }, [angle, spinning]);
+
+  const replay = useCallback(() => {
+    setShowModal(false);
+    window.setTimeout(() => spin(), 300);
+  }, [spin]);
 
   return (
     <section className="relative px-6 py-24">
@@ -116,22 +124,82 @@ export function CompassOfUs() {
         >
           {spinning ? "finding us…" : item ? "spin again ↻" : "spin the compass"}
         </button>
-
-        {item && !spinning && (
-          <motion.div
-            key={item.text}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="glass mx-auto mt-8 max-w-xl rounded-3xl border border-primary/20 p-6"
-          >
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              {EMOJI[item.kind]} it points to {LABEL[item.kind]}
-            </p>
-            <p className="mt-3 font-script text-2xl text-primary md:text-3xl">{item.text}</p>
-          </motion.div>
-        )}
       </div>
+
+      {/* Premium Modal */}
+      <AnimatePresence>
+        {showModal && item && (
+          <>
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => setShowModal(false)}
+              className="fixed inset-0 z-[120] bg-background/80 backdrop-blur-md"
+            />
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.85, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 40 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed left-1/2 top-1/2 z-[125] w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 p-1 shadow-[0_0_80px_-20px_hsl(var(--primary)/0.35)]"
+            >
+              <div className="relative overflow-hidden rounded-[22px] bg-card/60 p-8 text-center">
+                {/* subtle glow orb */}
+                <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
+
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="text-xs uppercase tracking-[0.3em] text-muted-foreground"
+                >
+                  {EMOJI[item.kind]} the compass found {LABEL[item.kind]}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="relative mx-auto mt-6 max-w-sm"
+                >
+                  <span className="absolute -left-4 -top-4 text-4xl text-primary/20">“</span>
+                  <p className="font-script text-2xl leading-relaxed text-primary md:text-3xl">
+                    {item.text}
+                  </p>
+                  <span className="absolute -bottom-4 -right-4 text-4xl text-primary/20">”</span>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+                >
+                  <button
+                    type="button"
+                    onClick={replay}
+                    className="rounded-full bg-primary px-8 py-3 font-display text-sm text-primary-foreground shadow-[0_0_24px_-6px_hsl(var(--primary)/0.5)] transition hover:scale-105 active:scale-95"
+                  >
+                    replay this moment ↻
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="rounded-full border border-primary/30 px-6 py-3 font-display text-sm text-foreground transition hover:bg-primary/10"
+                  >
+                    close
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
