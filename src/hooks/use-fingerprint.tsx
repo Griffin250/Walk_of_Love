@@ -4,6 +4,7 @@
  */
 
 import { useVisitorData } from "@fingerprint/react";
+import { useEffect, useState } from "react";
 import { FingerprintData } from "@/lib/fingerprint";
 
 const LOCAL_DEVICE_ID_KEY = "local-device-id";
@@ -53,20 +54,27 @@ export interface UseFingerprintReturn {
  * ```
  */
 export function useFingerprint(): UseFingerprintReturn {
-  const { isLoading, error, data, getData } = useVisitorData({
-    immediate: true, // Automatically fetch on mount
-  });
+  const { isLoading, error, data, getData } = useVisitorData({ immediate: false });
+  const [loadError, setLoadError] = useState<Error | null>(null);
 
   const fallbackDeviceId = getOrCreateLocalDeviceId();
 
+  useEffect(() => {
+    getData({ ignoreCache: false }).catch((err: unknown) => {
+      setLoadError(err instanceof Error ? err : new Error(String(err)));
+    });
+  }, [getData]);
+
   return {
     isLoading,
-    error: error || null,
+    error: error || loadError,
     data: (data as unknown as FingerprintData) || null,
     visitorId: data?.visitor_id || fallbackDeviceId,
     reload: () => {
-      void getData().catch((reloadError) => {
-        console.error("Failed to refresh visitor data:", reloadError);
+      setLoadError(null);
+      getData({ ignoreCache: true }).catch((reloadError: unknown) => {
+        const err = reloadError instanceof Error ? reloadError : new Error(String(reloadError));
+        setLoadError(err);
       });
     },
   };
