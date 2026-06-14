@@ -18,10 +18,6 @@ dist-ssr
 .vercel/output/
 *.local
 
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
